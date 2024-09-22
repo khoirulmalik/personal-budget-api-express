@@ -4,6 +4,9 @@ const myEnvelope = require("./myEnvelope");
 
 const PORT = process.env.PORT || 3000;
 
+//middleware
+app.use(express.json());
+
 app.get("/envelope", (req, res) => {
   res.send(myEnvelope);
 });
@@ -18,6 +21,23 @@ app.get("/envelope/:id", (req, res) => {
     res.send(envelope);
   } else {
     res.status(404).send("Envelope not found");
+  }
+});
+
+app.post("/envelope", (req, res) => {
+  const { nama, budget } = req.body;
+
+  if (req.body) {
+    const newEnvelope = {
+      id: myEnvelope.length + 1,
+      nama,
+      budget,
+    };
+
+    myEnvelope.push(newEnvelope);
+    res.status(201).send("success");
+  } else {
+    res.status(400).send("failed");
   }
 });
 
