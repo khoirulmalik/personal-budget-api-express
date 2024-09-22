@@ -9,21 +9,23 @@ let nextEnvelopeId = 6;
 //middleware
 app.use(express.json());
 
+app.param("/id", (req, res, next, id) => {
+  const envelopeId = Number(id);
+  const envelopeIndex = myEnvelope.findIndex((env) => env.id === envelopeId);
+  if (envelopeIndex === -1) {
+    res.status(404).send("envelope not found");
+  } else {
+    req.envelopeIndex = envelopeIndex;
+    next();
+  }
+});
+
 app.get("/envelope", (req, res) => {
   res.send(myEnvelope);
 });
 
 app.get("/envelope/:id", (req, res) => {
-  const getById = parseInt(req.params.id);
-  const envelope = myEnvelope.find((env) => env.id === getById);
-
-  console.log(envelope); // Log the envelope
-
-  if (envelope) {
-    res.send(envelope);
-  } else {
-    res.status(404).send("Envelope not found");
-  }
+  res.send(myEnvelope[req.envelopeIndex]);
 });
 
 app.post("/envelope", (req, res) => {
@@ -44,25 +46,13 @@ app.post("/envelope", (req, res) => {
 });
 
 app.put("/envelope/:id", (req, res) => {
-  const envelopeId = Number(req.params.id);
-  const envelopeIndex = myEnvelope.findIndex((env) => env.id === envelopeId);
-  if (envelopeIndex !== -1) {
-    myEnvelope[envelopeIndex] = req.body;
-    res.send(myEnvelope[envelopeIndex]);
-  } else {
-    res.status(404).send("envelope not foud");
-  }
+  myEnvelope[req.envelopeIndex] = req.body;
+  res.send(myEnvelope[req.envelopeIndex]);
 });
 
 app.delete("/envelope/:id", (req, res) => {
-  const envelopeId = Number(req.params.id);
-  const envelopeIndex = myEnvelope.findIndex((env) => env.id === envelopeId);
-  if (envelopeIndex !== -1) {
-    myEnvelope.splice(envelopeIndex, 1);
-    res.status(204).send();
-  } else {
-    res.status(404).send("envelope not foud");
-  }
+  myEnvelope.splice(req.envelopeIndex);
+  res.status(204).send("delete success");
 });
 
 app.listen(PORT, () => {
