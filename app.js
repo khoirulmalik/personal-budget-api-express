@@ -4,6 +4,8 @@ const myEnvelope = require("./myEnvelope");
 
 const PORT = process.env.PORT || 3000;
 
+let nextEnvelopeId = 6;
+
 //middleware
 app.use(express.json());
 
@@ -29,7 +31,7 @@ app.post("/envelope", (req, res) => {
 
   if (req.body) {
     const newEnvelope = {
-      id: myEnvelope.length + 1,
+      id: (nextEnvelopeId += 1),
       nama,
       budget,
     };
@@ -38,6 +40,28 @@ app.post("/envelope", (req, res) => {
     res.status(201).send("success");
   } else {
     res.status(400).send("failed");
+  }
+});
+
+app.put("/envelope/:id", (req, res) => {
+  const envelopeId = Number(req.params.id);
+  const envelopeIndex = myEnvelope.findIndex((env) => env.id === envelopeId);
+  if (envelopeIndex !== -1) {
+    myEnvelope[envelopeIndex] = req.body;
+    res.send(myEnvelope[envelopeIndex]);
+  } else {
+    res.status(404).send("envelope not foud");
+  }
+});
+
+app.delete("/envelope/:id", (req, res) => {
+  const envelopeId = Number(req.params.id);
+  const envelopeIndex = myEnvelope.findIndex((env) => env.id === envelopeId);
+  if (envelopeIndex !== -1) {
+    myEnvelope.splice(envelopeIndex, 1);
+    res.status(204).send();
+  } else {
+    res.status(404).send("envelope not foud");
   }
 });
 
